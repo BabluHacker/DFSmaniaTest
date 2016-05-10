@@ -35,10 +35,28 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".canvas_draw"
-                  android:screenOrientation="landscape">
+        <activity
+            android:name=".canvas_draw"
+            android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="com.example.mehedi.dfsmania.canvas_draw" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".learn_dfs"
+            android:screenOrientation="landscape">
+            <intent-filter>
+                <action android:name="com.example.mehedi.dfsmania.learn_dfs" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".activity_credit"
+            android:screenOrientation="landscape">
+            <intent-filter>
+                <action android:name="com.example.mehedi.dfsmania.activity_activity_credit" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

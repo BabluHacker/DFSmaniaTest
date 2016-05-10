@@ -1,6 +1,7 @@
 package com.example.mehedi.dfsmania;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -45,6 +46,7 @@ public class MyView extends View
 
     float prevX, prevY;
     Timer timer;
+    int tempx, tempy;
 
 
     int ss=0;
@@ -52,9 +54,11 @@ public class MyView extends View
     int setDrawfirst =1;
     Boolean stopSimulation = false;
     int prevNode;
-
+    //int redColored[] = new int[10];
     LinkedList<Integer> path = new LinkedList();
     LinkedList<Integer> storeVisited = new LinkedList();
+
+
 
     public MyView(Context context, String prevDataCanvas[]) {
         super(context);
@@ -80,14 +84,18 @@ public class MyView extends View
         //reciving data
         prevData = prevDataCanvas;
         RecievePrevData();
+
+
     }
 
     public void init(){
         path.clear();
         for(int i =0;i<10; i++){
             nodeDetails[i].clear();
+            //redColored[i] = 0;
         }
         storeVisited.clear();
+
 
     }
 
@@ -95,7 +103,12 @@ public class MyView extends View
     protected  void onDraw(Canvas can){
 
 
+
+
         super.onDraw(can);
+
+        setBack(can);
+
         if(setDrawfirst == 1) {
             //restore eerything after recv data
 
@@ -104,9 +117,14 @@ public class MyView extends View
             Draw(can);
             Draw(can);
             dfs(can);//store path
+            if(path.size() == 1) {
+                stopSimulation = true;
+            }
 
             counterNode=0;
-            prevS = (int) path.get(counterNode);
+            if(path.size()>1) {
+                prevS = (int) path.get(counterNode);
+            }
             //>>>>>>>>
             storeVisited.add(prevS);
 
@@ -116,11 +134,13 @@ public class MyView extends View
                 prevSy = nodeDetails[prevS].get(0).second;
             }
             counterNode++;
-            prevE = (int) path.get(counterNode);
+            if(path.size()>1) {
+                prevE = (int) path.get(counterNode);
+            }
             //>>>>>>>>
             //storeVisited.add(prevE);
 
-            if(!nodeDetails[prevE].isEmpty()) {
+            if(!nodeDetails[prevE].isEmpty() && path.size()>1) {
                 prevEx = nodeDetails[prevE].get(0).first;
                 prevEy = nodeDetails[prevE].get(0).second;
             }
@@ -134,7 +154,9 @@ public class MyView extends View
 
         setDrawfirst = 0;
 
-        int tempx=1, tempy=1, xx, yy, len;
+        tempx=1;
+        tempy=1;
+        int xx, yy, len;
         //if(prevSx <= prevEx  && prevSy <= prevSy){ //1
         len = (int)Math.sqrt((double)((prevSx-prevEx)*(prevSx-prevEx) + (prevSy-prevEy)*(prevSy-prevEy)));
         if(len == 0){
@@ -149,7 +171,7 @@ public class MyView extends View
         division+=3;
 
         Paint paint1 = new Paint();
-        paint1.setColor(Color.RED);
+        paint1.setColor(Color.GREEN);
         paint1.setStyle(Paint.Style.STROKE);
         paint1.setStrokeWidth(6);
         paint1.setAntiAlias(true);
@@ -179,8 +201,10 @@ public class MyView extends View
             if(path.size() > counterNode) {
                 prevE = (int) path.get(counterNode);
                 storeVisited.add(prevS);
+                //redColored[prevS]++;
             }
             else{
+
                 stopSimulation = true;
             }
             if(!nodeDetails[prevE].isEmpty()) {
@@ -209,22 +233,63 @@ public class MyView extends View
 
         Draw(can);
         //<><><<><><><><>paint red all visited continuously
-        paintRedVisitedCircles(can);
+        if(path.size()>1) {
+            paintRedVisitedCirclesLines(can);
+        }
+        else{
+            circleRedDraw(path.get(0), can);
+        }
         //,.,.,.,.,
         if(!stopSimulation ) {
             invalidate();
         }
     }
 
-    public void paintRedVisitedCircles(Canvas can){
+    public void setBack(Canvas can){
+        Rect rec = new Rect();
+        rec.set(0,0,can.getWidth(), can.getHeight());
 
+        Paint pan = new Paint();
+        pan.setColor(Color.rgb(111,80,44));
+        pan.setStyle(Paint.Style.FILL);
 
+        can.drawRect(rec, pan);
+    }
+    public void paintRedVisitedCirclesLines(Canvas can){
+        //line pain
+        Paint paintLine = new Paint();
+        paintLine.setAntiAlias(true);
+        paintLine.setStrokeWidth(6);
+        paintLine.setColor(Color.RED);
 
+        int x1, y1;
 
         for(int i =0;i<storeVisited.size();i++){
+            //circleRedDraw(storeVisited.get(i), can);
+            if(i != storeVisited.size()-1){
+                can.drawLine(nodeDetails[storeVisited.get(i)].get(0).first, nodeDetails[storeVisited.get(i)].get(0).second, nodeDetails[storeVisited.get(i+1)].get(0).first, nodeDetails[storeVisited.get(i+1)].get(0).second, paintLine);
+                /*if(redColored[storeVisited.get(i)] > 1){
+                    circleGreenDraw(storeVisited.get(i), can);
+                }
+                else {
+                    circleGreenDraw(storeVisited.get(i), can);
+                }*/
+            }
+            if( i == storeVisited.size() - 1  && path.size()>1) {
+                can.drawLine(nodeDetails[storeVisited.get(i)].get(0).first, nodeDetails[storeVisited.get(i)].get(0).second, tempx, tempy, paintLine);
+                /*if(redColored[storeVisited.get(i)] > 1){
+
+                }
+                else {
+
+                }*/
+                //circleRedDraw(storeVisited.get(i), can);
+            }
             circleRedDraw(storeVisited.get(i), can);
 
+
         }
+        circleRedDraw(storeVisited.get(0), can);
     }
     public void circleRedDraw(int v, Canvas can ){
         //visied circle paint
@@ -252,6 +317,32 @@ public class MyView extends View
         can.drawText(text, x1, y1, paintText);
 
 
+    }
+
+    public void circleGreenDraw(int v, Canvas can){
+        // previous visied circle paint
+        Paint paintVisited = new Paint();
+        paintVisited.setAntiAlias(true);
+        paintVisited.setColor(Color.YELLOW);
+        //................
+        int x1 = nodeDetails[v].get(0).first;
+        int y1 = nodeDetails[v].get(0).second;
+
+        can.drawCircle(x1, y1, 30, paintVisited);
+
+        //text paint
+        Paint paintText = new Paint();
+
+        paintText.setColor(Color.GREEN);
+        paintText.setTextSize(24f);
+        paintText.setAntiAlias(true);
+        paintText.setTextAlign(Paint.Align.CENTER);
+        //text draw
+
+        Rect bounds = new Rect();
+        String text=""+v;
+        paintText.getTextBounds(text, 0, text.length(), bounds);
+        can.drawText(text, x1, y1, paintText);
     }
 
     protected void Draw(Canvas can)
@@ -407,62 +498,82 @@ public class MyView extends View
         if(circleCounter==1 && !isCirclePresent[circleCounter]) {
             drawCircle(text, initX + 60, initY, can, circlePaint);
             isNodePresent[Integer.parseInt(text)] = true;
-            nodeDetails[Integer.parseInt(text)].add(Pair.create(initX + 60, initY));
+            if(setDrawfirst==1) {
+                nodeDetails[Integer.parseInt(text)].add(Pair.create(initX + 60, initY));
+            }
             isCirclePresent[circleCounter]= true;
         }
         else if(circleCounter==2 && !isCirclePresent[circleCounter]){
             drawCircle(text, initX+5*Xportion-60, initY, can, circlePaint);
             isNodePresent[Integer.parseInt(text)] = true;
-            nodeDetails[Integer.parseInt(text)].add(Pair.create(initX+5*Xportion-60, initY));
+            if(setDrawfirst==1) {
+                nodeDetails[Integer.parseInt(text)].add(Pair.create(initX + 5 * Xportion - 60, initY));
+            }
             isCirclePresent[circleCounter]= true;
         }
 
         else if(circleCounter==3 && !isCirclePresent[circleCounter]) {
             drawCircle(text, initX + 3 * Xportion, initY - 2 * Yportion + 40, can, circlePaint);
             isNodePresent[Integer.parseInt(text)] = true;
-            nodeDetails[Integer.parseInt(text)].add(Pair.create( initX + 3 * Xportion, initY - 2 * Yportion + 40));
+            if(setDrawfirst==1) {
+                nodeDetails[Integer.parseInt(text)].add(Pair.create(initX + 3 * Xportion, initY - 2 * Yportion + 40));
+            }
             isCirclePresent[circleCounter]= true;
         }
         else if(circleCounter==4 && !isCirclePresent[circleCounter]) {
             drawCircle(text, initX + 2 * Xportion, initY + 2 * Yportion, can, circlePaint);
             isNodePresent[Integer.parseInt(text)] = true;
-            nodeDetails[Integer.parseInt(text)].add(Pair.create(initX + 2 * Xportion, initY + 2 * Yportion));
+            if(setDrawfirst==1) {
+                nodeDetails[Integer.parseInt(text)].add(Pair.create(initX + 2 * Xportion, initY + 2 * Yportion));
+            }
             isCirclePresent[circleCounter]= true;
         }
         else if(circleCounter==5 && !isCirclePresent[circleCounter]) {
             drawCircle(text, initX + 3 * Xportion, initY + 2 * Yportion, can, circlePaint);
             isNodePresent[Integer.parseInt(text)] = true;
-            nodeDetails[Integer.parseInt(text)].add(Pair.create(initX + 3 * Xportion, initY + 2 * Yportion));
+            if(setDrawfirst==1) {
+                nodeDetails[Integer.parseInt(text)].add(Pair.create(initX + 3 * Xportion, initY + 2 * Yportion));
+            }
             isCirclePresent[circleCounter]= true;
         }
         else if(circleCounter==6 && !isCirclePresent[circleCounter]) {
             drawCircle(text, initX + 2 * Xportion, initY - 2 * Yportion + 40, can, circlePaint);
             isNodePresent[Integer.parseInt(text)] = true;
-            nodeDetails[Integer.parseInt(text)].add(Pair.create( initX + 2 * Xportion, initY - 2 * Yportion + 40));
+            if(setDrawfirst==1) {
+                nodeDetails[Integer.parseInt(text)].add(Pair.create(initX + 2 * Xportion, initY - 2 * Yportion + 40));
+            }
             isCirclePresent[circleCounter]= true;
         }
         else if(circleCounter==7 && !isCirclePresent[circleCounter]) {
             drawCircle(text, initX + 4 * Xportion, initY - Yportion, can, circlePaint);
             isNodePresent[Integer.parseInt(text)] = true;
-            nodeDetails[Integer.parseInt(text)].add(Pair.create(initX + 4 * Xportion, initY - Yportion));
+            if(setDrawfirst==1) {
+                nodeDetails[Integer.parseInt(text)].add(Pair.create(initX + 4 * Xportion, initY - Yportion));
+            }
             isCirclePresent[circleCounter]= true;
         }
         else if(circleCounter==8 && !isCirclePresent[circleCounter]) {
             drawCircle(text, initX + Xportion, initY + Yportion + 20, can, circlePaint);
             isNodePresent[Integer.parseInt(text)] = true;
-            nodeDetails[Integer.parseInt(text)].add(Pair.create(initX + Xportion, initY + Yportion + 20));
+            if(setDrawfirst==1) {
+                nodeDetails[Integer.parseInt(text)].add(Pair.create(initX + Xportion, initY + Yportion + 20));
+            }
             isCirclePresent[circleCounter]= true;
         }
         else if(circleCounter==9 && !isCirclePresent[circleCounter]) {
             drawCircle(text, initX + Xportion, initY - Yportion, can, circlePaint);
             isNodePresent[Integer.parseInt(text)] = true;
-            nodeDetails[Integer.parseInt(text)].add(Pair.create(initX + Xportion, initY - Yportion));
+            if(setDrawfirst==1) {
+                nodeDetails[Integer.parseInt(text)].add(Pair.create(initX + Xportion, initY - Yportion));
+            }
             isCirclePresent[circleCounter]= true;
         }
         else if(circleCounter==0 && !isCirclePresent[circleCounter]) {
             drawCircle(text, initX + 4 * Xportion, initY + Yportion + 20, can, circlePaint);
             isNodePresent[Integer.parseInt(text)] = true;
-            nodeDetails[Integer.parseInt(text)].add(Pair.create(initX + 4 * Xportion, initY + Yportion + 20));
+            if(setDrawfirst==1) {
+                nodeDetails[Integer.parseInt(text)].add(Pair.create(initX + 4 * Xportion, initY + Yportion + 20));
+            }
             isCirclePresent[circleCounter]= true;
         }
         circleCounter++;
@@ -521,7 +632,7 @@ public class MyView extends View
         boolean visited[] = new boolean[10];
         path.clear();
 
-        int src=0;
+        int src=node;
         prevNode = src;
         /*if(!nodeDetails[src].isEmpty()) {
             prevX = nodeDetails[src].get(0).first;

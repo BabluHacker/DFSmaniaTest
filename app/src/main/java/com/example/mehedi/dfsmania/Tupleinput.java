@@ -22,6 +22,7 @@ public class Tupleinput extends AppCompatActivity {
     int node, edge;
     int dir;
 
+    Boolean sourceNodeSelected = false;
 
 
 
@@ -73,7 +74,10 @@ public class Tupleinput extends AppCompatActivity {
 
 
         if(number >= 0 && number <= 9){
-            Toast.makeText(Tupleinput.this, ""+number, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(Tupleinput.this, ""+number, Toast.LENGTH_SHORT).show();
+            if(number == node){
+                sourceNodeSelected = true;
+            }
 
         }
 
@@ -119,31 +123,39 @@ public class Tupleinput extends AppCompatActivity {
 
         if(v.getId() == R.id.buttonDone){
 
-            Toast.makeText(Tupleinput.this, "Done", Toast.LENGTH_SHORT).show();
+            Log.v("source node selected ", " "+sourceNodeSelected);
+
+            if(!sourceNodeSelected){
+                Toast.makeText(Tupleinput.this, ""+"Source Node "+node+" has not been Taken", Toast.LENGTH_SHORT).show();
+            }
+
+            //Toast.makeText(Tupleinput.this, "Done", Toast.LENGTH_SHORT).show();
             //startActivity(new Intent(getApplicationContext(), canvas_draw.class));
             //going to next page
-            edgeCounter++;
-            tuple[edgeCounter] = ""+node;
-            edgeCounter++;
-            tuple[edgeCounter] = ""+edge;
-            tuple[0] = ""+edgeCounter;
-            tuple[edgeCounter+1] = ""+dir;
+            else {
+                edgeCounter++;
+                tuple[edgeCounter] = "" + node;
+                edgeCounter++;
+                tuple[edgeCounter] = "" + edge;
+                tuple[0] = "" + edgeCounter;
+                tuple[edgeCounter + 1] = "" + dir;
 
-            edgeCounter-=2;
+                edgeCounter -= 2;
 
-            //start draw activity
-            Intent i = new Intent(getApplicationContext(), canvas_draw.class);
-            //sending data to another activity
-            //String s = e1.getText().toString();
-            //i.putExtra("name", s);
-            /////////
-            //sending array on Tupleinput
-            Bundle bundel = new Bundle();
-            bundel.putStringArray("key", tuple);
+                //start draw activity
+                Intent i = new Intent(getApplicationContext(), canvas_draw.class);
+                //sending data to another activity
+                //String s = e1.getText().toString();
+                //i.putExtra("name", s);
+                /////////
+                //sending array on Tupleinput
+                Bundle bundel = new Bundle();
+                bundel.putStringArray("key", tuple);
 
-            i.putExtras(bundel);
+                i.putExtras(bundel);
 
-            startActivity(i);
+                startActivity(i);
+            }
 
 
 

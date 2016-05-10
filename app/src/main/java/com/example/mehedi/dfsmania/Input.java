@@ -50,18 +50,18 @@ public class Input extends AppCompatActivity {
         Arrays.fill(isNode, false);
         if(v.getId() == R.id.button_random){
             Random rand = new Random();
-            int edge = rand.nextInt(8);
-            int node = rand.nextInt(10);
-            if(node < 1){
+            int edge = rand.nextInt(9);
+            int node = 0;
+            /*if(node < 1){
                 node *= -1;
             }
             node = node%9 +1;
-
+            */
             if(edge < 1) {
                 edge *=-1;
 
             }
-            edge = edge%8 + 1;
+            edge = edge%9 + 1;
             int i;
             for(i =1 ; i<= edge ;){
                 int x = rand.nextInt(10);
@@ -74,10 +74,16 @@ public class Input extends AppCompatActivity {
                 }
                 x = x%10;
                 y = y%10;
+
+                if(i==1){
+                    node = x;
+                }
                 prevData[i] = ""+x;
                 i++;
                 prevData[i] = ""+y;
                 i++;
+
+
 
 
 
@@ -150,11 +156,11 @@ public class Input extends AppCompatActivity {
 
                    //for node edge text
                    node = Tnode.getText().toString();
-                   if(!node.equals("") && !node.equals("0")){
+                   if(!node.equals("") && (node.equals("0") || node.equals("1") || node.equals("2") || node.equals("3") || node.equals("4") || node.equals("5") || node.equals("6") || node.equals("7") || node.equals("8") || node.equals("9"))){
                        node_click=true;
                    }
                    edge = Tedge.getText().toString();
-                   if(!edge.equals("") && !edge.equals("0")){
+                   if(!edge.equals("") && !edge.equals("0") && edge.length() == 1){
                        edge_click=true;
                    }
 
